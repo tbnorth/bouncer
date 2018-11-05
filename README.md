@@ -12,7 +12,7 @@ docker build -t bouncer .
 ```
 and then map the local files into the container at runtime
 ```shell
-docker run --name bouncer -v /some/path/local:/etc/httpd/conf/local \
+docker run --name bouncer -v /some/path/local:/usr/local/apache2/conf/local \
   -p 80:80 -p 443:443 bouncer
 ```
 
@@ -59,13 +59,14 @@ You can even serve a home page (`http://your.server.com/`):
       Options Indexes FollowSymLinks
     </Directory>
 ```
-plus `-v /some/host/path:/web` in the docker run command.
+plus `-v /some/path/webroot:/web` in the docker run command.
 
 A full docker run command might look like:
 ```
 docker run --name bouncer -d -p 80:80 -p 443:443 \
   --link thing1 --link thing2 \
-  -v /some/host/path:/web \
+  -v /some/path/local:/usr/local/apache2/conf/local \
+  -v /some/path/webroot:/web \
   -v /usr/share/awstats/icon:/awstats-icon \
   bouncer
 ```
