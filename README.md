@@ -69,5 +69,5 @@ docker run --name bouncer -d -p 80:80 -p 443:443 \
   -v /usr/share/awstats/icon:/awstats-icon \
   bouncer
 ```
-
-
+where `thing1` and `thing2` are containers running apps. to proxy
+from http(s)_local.conf.
