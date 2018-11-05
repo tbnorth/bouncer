@@ -30,7 +30,7 @@ ProxyPass "/some/path/" "http://someapp:8000/"
 ProxyPassReverse "/some/path/" "http://someapp:8000/"
 ```
 and include `--link someapp` when you run bouncer.  That will proxy the path
-`http://your.server.com/some/path` to something running on port 80 in the
+`http://your.server.com/some/path` to something running on port 8000 in the
 container called `someapp`.
 
 Some apps. may need URLs re-written:
