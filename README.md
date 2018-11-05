@@ -51,7 +51,7 @@ Alias "/awstats-icon" "/awstats-icon"
 ```
 and `-v /usr/share/awstats/icon:/awstats-icon` in the docker run command.
 
-You can even server a home page (`http://your.server.com/`):
+You can even serve a home page (`http://your.server.com/`):
 ```
     DocumentRoot "/web"
     <Directory "/web">
