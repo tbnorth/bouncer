@@ -41,7 +41,7 @@ ProxyHTMLURLMap / /some/path/
 ProxyHTMLURLMap http://someapp:8000/ /some/path/
 ```
 
-You can server content from a host folder with:
+You can serve content from a host folder with:
 ```
 Alias "/awstats-icon" "/awstats-icon"
 <Directory "/awstats-icon">
