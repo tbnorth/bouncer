@@ -1,0 +1,170 @@
+# <If/> blocks can *not* be nested
+# Typically just edit "Local sites" sections
+# and false->true for SSL if needed
+
+<If "true">
+    # Load proxy related modules
+    LoadModule proxy_module modules/mod_proxy.so
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+    LoadModule proxy_html_module modules/mod_proxy_html.so
+    LoadModule rewrite_module modules/mod_rewrite.so
+    LoadModule xml2enc_module modules/mod_xml2enc.so
+</If>
+
+<If "false">
+    # Load HTTPS related modules
+    LoadModule ssl_module modules/mod_ssl.so
+    LoadModule cache_module modules/mod_cache.so
+    LoadModule cache_socache_module modules/mod_cache_socache.so
+    LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+</If>
+
+<If "true">
+    # Port 80 config.
+    <VirtualHost *:80>
+        # ServerName www.example.com
+        # ServerAdmin webmaster@localhost
+        # DocumentRoot /var/www/html
+        # Proxy setup
+            <Proxy *>
+                AddDefaultCharset off
+                Order deny,allow
+                Deny from all
+                Allow from all
+            </Proxy>
+            # this should always be off
+            ProxyRequests Off
+
+            ProxyPreserveHost On
+
+            ProxyHTMLEnable On
+
+            # breaks // comment in javascript etc. if On
+            ProxyHTMLExtended Off
+
+            ProxyHTMLLinks a           href
+            ProxyHTMLLinks area        href
+            ProxyHTMLLinks link        href
+            ProxyHTMLLinks img         src longdesc usemap
+            ProxyHTMLLinks object      classid codebase data usemap
+            ProxyHTMLLinks q           cite
+            ProxyHTMLLinks blockquote  cite
+            ProxyHTMLLinks ins         cite
+            ProxyHTMLLinks del         cite
+            ProxyHTMLLinks form        action
+            ProxyHTMLLinks input       src usemap
+            ProxyHTMLLinks head        profile
+            ProxyHTMLLinks base        href
+            ProxyHTMLLinks script      src for
+        # Local sites
+
+            # simplest case
+            # ProxyPass "/subpath/" "http://127.0.0.1:8888/"
+            # ProxyPassReverse "/subpath/" "http://127.0.0.1:8888/"
+            # not always needed
+            # ProxyHTMLURLMap / /subpath/
+            # ProxyHTMLURLMap http://127.0.0.1:8888/ /subpath/
+
+            # when Referer: contains /subpath/ rewrite urls not starting with /subpath/
+            # RewriteEngine On
+            # RewriteCond %{HTTP_REFERER} subpath
+            # RewriteCond %{REQUEST_URI} !subpath
+            # RewriteRule /(.*) /subpath/$1 [PT]
+
+            # maybe more robust
+            # ProxyPass /subpath/ http://127.0.0.1:8888/
+            # ProxyHTMLURLMap http://127.0.0.1:8888/ /subpath/
+            # <Location /subpath/>
+            #   ProxyPassReverse /
+            #   ProxyHTMLURLMap/ /subpath/
+            # </Location>
+
+            # Alias /static/subpath/ /static/subpath/
+            # <Directory /static/subpath/>
+            #   Options Indexes FollowSymLinks
+            #   AllowOverride None
+            #   Require all granted
+            # </Directory>
+            # Alias /static/mezzanine/ /static/subpath/mezzanine/
+
+            # DocumentRoot "/web"
+            # <Directory "/web">
+            #   Require all granted
+            #   Options Indexes FollowSymLinks
+            # </Directory>
+
+    </VirtualHost>
+</If>
+
+<If "false">
+    # Port 443 (SSL, HTTPS) config.
+        # General SSL setup
+        # Please read doc.s https://httpd.apache.org/docs/2.4/mod/mod_ssl.html
+        # for important info. about these settings
+        Listen 443
+        SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES
+        SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES
+        # should reall be
+        # SSLCipherSuite HIGH:MEDIUM:!SSLv3:!kRSA
+        # SSLProxyCipherSuite HIGH:MEDIUM:!SSLv3:!kRSA
+        SSLHonorCipherOrder on
+        SSLProtocol all -SSLv3
+        SSLProxyProtocol all -SSLv3
+        SSLPassPhraseDialog  builtin
+        SSLSessionCache        "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+        SSLSessionCacheTimeout  300
+    <VirtualHost _default_:443>
+        # General setup for the virtual host
+            DocumentRoot "/usr/local/apache2/htdocs"
+            ServerName www.example.com:443
+            ServerAdmin you@example.com
+            ErrorLog "/usr/local/apache2/logs/error_log"
+            TransferLog "/usr/local/apache2/logs/access_log"
+            SSLEngine on
+            SSLCertificateFile "/usr/local/apache2/conf/server.crt"
+            SSLCertificateKeyFile "/usr/local/apache2/conf/server.key"
+            <FilesMatch "\.(cgi|shtml|phtml|php)$">
+               SSLOptions +StdEnvVars
+            </FilesMatch>
+            <Directory "/usr/local/apache2/cgi-bin">
+               SSLOptions +StdEnvVars
+            </Directory>
+            BrowserMatch "MSIE [2-5]" \
+              nokeepalive ssl-unclean-shutdown \
+              downgrade-1.0 force-response-1.0
+            CustomLog "/usr/local/apache2/logs/ssl_request_log" \
+              "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+        # Proxy setup
+            <Proxy *>
+                AddDefaultCharset off
+                Order deny,allow
+                Deny from all
+                Allow from all
+            </Proxy>
+            ProxyRequests Off
+
+            ProxyHTMLEnable On
+
+            # breaks // comment in javascript etc. if On
+            ProxyHTMLExtended Off
+
+            ProxyHTMLLinks a           href
+            ProxyHTMLLinks area        href
+            ProxyHTMLLinks link        href
+            ProxyHTMLLinks img         src longdesc usemap
+            ProxyHTMLLinks object      classid codebase data usemap
+            ProxyHTMLLinks q           cite
+            ProxyHTMLLinks blockquote  cite
+            ProxyHTMLLinks ins         cite
+            ProxyHTMLLinks del         cite
+            ProxyHTMLLinks form        action
+            ProxyHTMLLinks input       src usemap
+            ProxyHTMLLinks head        profile
+            ProxyHTMLLinks base        href
+            ProxyHTMLLinks script      src for
+        # Local sites
+            # see previous local sites section for examples
+    </VirtualHost>
+</If>
+
+# vim: fdm=indent sw=4 ft=apache fdi=
